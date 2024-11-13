@@ -1,8 +1,9 @@
 class Snake:
-    def __init__(self, matrice=[[1]], x=1, y=1):
+    def __init__(self, matrice, x, y, color):
         self._matrice = matrice
         self._x = x
         self._y = y
+        self._color = color
 
     def getx(self):
         return self._x

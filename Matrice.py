@@ -23,8 +23,7 @@ class Matrice:
         else:
             return col * 8 + (7 - row)
 
-    def draw_snake(self, matrix, start_row, start_col):
-        color = (0, 50, 0)
+    def draw(self, matrix, start_row, start_col,color):
         rows = len(matrix)
         cols = len(matrix[0])
         for r in range(rows):
