@@ -32,3 +32,40 @@ class Matrice:
                     index = self.index_in_matrix(start_row - r, start_col - c)
                     self.set_color(index, color)
         self.np.write()
+
+    def wheel(self, pos):
+        if pos < 85:
+            return (pos * 3, 255 - pos * 3, 0)
+        elif pos < 170:
+            pos -= 85
+            return (255 - pos * 3, 0, pos * 3)
+        else:
+            pos -= 170
+            return (0, pos * 3, 255 - pos * 3)
+
+    def slide(self,matrix, start_row, wait):
+        rows = len(matrix)
+        cols = len(matrix[0])
+
+        for offset in range(-15, cols):
+            self.clear_strip()
+            for r in range(8):
+                for c in range(16):
+                    matrix_col = c + offset
+                    if 0 <= matrix_col < cols and 0 <= start_row + r < rows:
+                        if matrix[start_row + r][matrix_col] == 1:
+                            color = self.wheel((r * 16 + c) & 255)
+                            index = self.index_in_matrix(r, c)
+                            self.set_color(index, color)
+            self.np.write()
+            self.time.sleep_ms(wait)
+
+
+LOSER = [
+    [1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0],
+    [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1],
+    [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0],
+    [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0],
+    [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
+    [1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1]
+]
