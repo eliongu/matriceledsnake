@@ -1,76 +1,60 @@
 from Matrice import *
 from Snake import *
-from button import *
+from buzzer import *
 from fruit import *
 import time
 
+class Game :
+    def __init__(self) :
+        self.matrice = Matrice(10, 64)
+        self.snake = Snake([[1]], 0, 0, (0, 10, 0), "RIGHT")
+        self.fruit = Fruit([[1]], 4, 4, (10, 2, 2))
+        self.positionlist = [(self.snake.x, self.snake.y)]
+        self.buzzer = Buzzer()
 
-def randomint(positionlist):
-    while True:
-        randx = random.randint(0, 7)
-        randy = random.randint(0, 7)
-        if (randx, randy) not in positionlist:
-            return randx, randy
+    def randomint(self, positionlist):
+        while True:
+            randx = random.randint(0, 7)
+            randy = random.randint(0, 7)
+            if (randx, randy) not in positionlist:
+                return randx, randy
 
-def eat(sx, sy, fx, fy):
-    return sx == fx and sy == fy
+    def eat(self, sx, sy, fx, fy):
+        return sx == fx and sy == fy
+
+    def game(self):
+        snake = self.snake
+        fruit = self.fruit
+        matrice = self.matrice
+        stop = False
+        self.buzzer.play_intro()
+
+        while not stop:
+            matrice.clear_strip()
+
+            for segment in self.positionlist:
+                matrice.draw(snake.matrice, segment[0], segment[1], snake.color)
+
+            matrice.draw(fruit.matrice, fruit.x, fruit.y, fruit.color)
+
+            if self.eat(snake.x, snake.y, fruit.x, fruit.y):
+                fx, fy = self.randomint(self.positionlist)
+                fruit.x = fx
+                fruit.y = fy
+                self.positionlist.append(self.positionlist[-1])
+
+            snake.condition()   #check la valeur du bouton
+            snake.movement()    #redirige le serpent en fonction de la valeur des boutons
+
+            if len(self.positionlist) > 1:
+                for segment in self.positionlist[1:]:
+                    if (snake.x, snake.y) == segment:
+                        Matrice.slide(matrice, LOSER, -1, 70, colorfull=False)
+                        stop = True
+
+            new_head = (snake.x, snake.y)
+            self.positionlist = [new_head] + self.positionlist[:-1]
 
 
-def game():
-    snake = Snake(matrice=[[1]], x=0, y=0, color=(0, 10, 0), direction="RIGHT")
-    matrice = Matrice(led_pin=10, num_leds=64)
-    fruit = Fruit(matrice=[[1]], x=4, y=4, color=(10, 2, 2))
-    positionlist = [(snake.getx(), snake.gety())]
-
-    bup = Button(7)
-    bdown = Button(3)
-    bright = Button(2)
-    bleft = Button(9)
-
-    stop = False
-
-    while not stop:
-        matrice.clear_strip()
-
-        for segment in positionlist:
-            matrice.draw(snake._matrice, segment[0], segment[1], snake._color)
-
-        matrice.draw(fruit._matrice, fruit.getx(), fruit.gety(), fruit._color)
-
-        if eat(snake.getx(), snake.gety(), fruit.getx(), fruit.gety()):
-            fx, fy = randomint(positionlist)
-            fruit.setx(fx)
-            fruit.sety(fy)
-            positionlist.append(positionlist[-1])
-
-
-        if bup.get_value() == 1:
-            snake.set_direction("UP")
-        elif bdown.get_value() == 1:
-            snake.set_direction("DOWN")
-        elif bright.get_value() == 1:
-            snake.set_direction("RIGHT")
-        elif bleft.get_value() == 1:
-            snake.set_direction("LEFT")
-
-        new_head = (snake.getx(), snake.gety())
-        positionlist = [new_head] + positionlist[:-1]
-
-        if positionlist.length() < 5:
-            for segment in positionlist:
-                if snake.getx() == segment[2] and snake.gety() == segment[3]:
-                    Matrice.slide(matrice, LOSER, 1, 3)
-                    print("Loser")
-                    stop = True
-
-        if snake.get_direction() == "UP":
-            snake.move_up()
-        elif snake.get_direction() == "DOWN":
-            snake.move_down()
-        elif snake.get_direction() == "RIGHT":
-            snake.move_right()
-        elif snake.get_direction() == "LEFT":
-            snake.move_left()
-
-        snake.is_out_of_bounds()
-        time.sleep(0.7)
+            snake.is_out_of_bounds()
+            time.sleep(0.7)

@@ -6,4 +6,3 @@ class Button:
 
     def get_value(self):
         return self.button_pin.value()
-
